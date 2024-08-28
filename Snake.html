@@ -1,0 +1,459 @@
+
+<html>
+	<head>
+	
+	</head>
+	
+		<style>
+			.main-container{
+				display:flex;
+				flex-direction:row;
+			}
+			
+			.title{
+				font-size:30px;
+			}
+		 
+			
+			body {
+				
+				margin:0;
+				padding:0;
+				font:13px arial;
+			}
+			#Board{
+				border:1px solid black;
+				margin:0px 0 0 0px;
+				left:50px;
+				top:50px;
+				background-color:black;
+		
+			}
+			
+			.rightpart{
+				margin-top:100px;
+				margin-left:40px;
+				height:300px;
+				width:450px;
+				border:solid 0.5px gray;
+				border-radius:5px;
+				text-align:center;
+			}
+			
+			.rightpart-content{
+				margin:30px;
+
+			}
+			
+			
+			#help{
+				text-align:left;
+			}
+			#instructions ul {
+			text-align:left;
+			}
+			
+			
+
+			#snake0{
+				position:absolute;
+				left:0;
+				top:0;
+				height:10px;
+				}
+			#snake1{
+				position:absolute;
+				left:0;
+				top:0;
+				height:10px;
+				}
+			#snake2
+			{
+				position:absolute;
+				left:0;
+				top:0;
+				height:10px;
+				}
+			
+			#out{
+			padding:20px;
+			font-family:Arial;
+			font-weight:bold;
+			color:coral;
+			}
+			#outscore {
+				font-size:12px;
+			}
+			
+			#scoreLabel{
+				position:absolute;
+				width:120px;
+				left:330px;
+				top:13px;
+				font-weight: bold;
+				font-size:20px;
+				color:black;
+				border:0.5px solid black;
+				border-radius:25px;
+				padding:10px 20px;
+				}
+			#scoreText{
+
+				border:none;
+				position:absolute;
+				width:60px;
+				left:87px;
+				size:20px;
+				font-size:20px;
+				color:black;
+				top:10px;
+				
+			
+			}
+			.playbtn
+			{
+				padding:10px 30px;
+				font-size:30px;
+				background-color:gray;
+				color:white;
+				font-weight:bold;
+				border-radius:25px;
+				border:none;
+			}
+			
+			.playbtn:hover{
+				box-shadow:0px 1px 1px 1px rgba(0,0,0,0.2);
+				opacity:0.9;
+			}
+			
+			.ctrlkeyleft , .ctrlkeyright,.ctrlkeyup,.ctrlkeydown{
+				padding:5px 15px;
+				font-size:15px;
+				color:black;
+				font-weight:bold;
+				border-radius:15px;
+				border:1px solid black;
+				background-color:white;
+			}
+			
+			.ctrlkeyleft:hover , .ctrlkeyright:hover,.ctrlkeyup:hover,.ctrlkeydown:hover{
+			opacity:0.7;
+			}
+		</style>
+ 
+
+ <body>
+ <div class="main-container">
+ <div id="Board">
+	<img src="snakeh.png" id="snake0" />
+	<img src="snake.png" id="snake1" />
+    <img src="snake.png" id="snake2" />
+	
+  </div>
+ 
+ <div class="leftpart">
+ 
+  <label type="text" id='scoreLabel'>
+  
+  Score:
+ <b> <input type='text' id='scoreText' value='0'></input> </b> <span id="out"></span><span id="outscore"></span></label>
+
+
+    </div>
+  
+  
+
+   	
+     
+   <div class="rightpart">
+ 
+	<div class="rightpart-content">
+	
+
+<center></center>
+	<div id="instructions">
+
+			<span class="title">SNAKE GAME</span>
+						<h4 id="help"> Game Instructions:</h4>
+						<ul>
+						<li>Press ARROW keys to control the snake head.</li>
+						<li>Colliding with goals/food will lengthen the snake.</li>
+						<li>Colliding with walls or the tail of your snake will end the game.</li><br>
+						<b>LEVELS :</b>
+						<li>Level 0: Score 0 to Score 50 (Speed Slow)</li>
+						<li>Level 1: Score 50 to Score 100 (Speed Medium)</li>
+						<li>Level 2: Score 100 to Score 150 (Speed Fast)</li>
+						<li>Level 3: Score 150 and Above (Speed Most Faster)</li>
+						</ul>
+	</div>
+	</div>
+   </div>
+ </div>
+   
+   
+  </body>
+<script type="text/javascript">
+
+
+
+
+
+	//to set the different game levels
+	var level1Score =50;
+	var level2Score =100;
+	var level3Score =150;
+	var levelSpeed =200;
+	
+	//Game Flags
+	var moveOne = true;
+	var snakeDead = false;
+
+	//for setting Game Score
+	var Score=0;
+	var snakePart = 2;
+
+	
+	//retrieve form parameters
+	var BoardSizex = "300px";
+	var BoardSizey = "400px";
+	var SnakePace = "200";
+	var Goals = "1";
+	var BoardSize1x = "300";
+	var BoardSize1y = "400";
+	
+	
+	document.getElementById('Board').style.height = BoardSizey;
+	document.getElementById('Board').style.width = BoardSizex;
+
+	
+
+	
+	
+			//flag set to not draw the food again and again on timer
+			firstDraw=false;        
+			function drawFood() {			    
+				
+			    if(!firstDraw)
+				{
+					
+				for(k=1;k<=Goals;k++)
+				{
+					callFood(k);
+				}				
+				firstDraw=true;
+				}
+				
+			}
+			
+			function callFood(k) {
+					foodX= randomNumbergen(1,BoardSize1x-10);
+					foodX=foodX-(foodX%10);
+					
+					foodY= randomNumbergen(1,BoardSize1y-10);
+					foodY=foodY-(foodY%10);
+					//generate img tags on fly
+					var incr = "<img src = \"food.png\" id=\"food"+k+"\" style = \"position:absolute;left:"+foodX+";top:"+foodY+";height:10px;\" />";
+					document.getElementById('Board').innerHTML += incr;
+							
+					document.getElementById('food' + k).style.left = foodX;
+					document.getElementById('food' + k).style.top = foodY;
+			}
+			
+			function redrawFood(k) {			    
+					callFood(k);
+						
+					var changer = document.getElementById('scoreText');	
+					changer.value = Score;
+					
+					
+					//change Game levels
+					if(Score == level3Score)
+					{
+						
+					  clearInterval(timer);
+							timer=setInterval('mrSnake.move()', 25);
+					}
+					else if(Score == level2Score)
+					{
+				
+					 
+							
+							clearInterval(timer);
+							timer=setInterval('mrSnake.move()', 50);
+							
+						
+					}
+					else if (Score == level1Score)
+					{
+						
+					
+								clearInterval(timer);
+								timer=setInterval('mrSnake.move()', 100);
+						
+					
+							
+						
+					}
+						
+					return;		
+			}
+			
+			
+			
+			
+			//generates a random number between range x,y
+			function randomNumbergen(x, y){
+			return Math.floor(Math.random() * y) + x; 
+		    }
+			
+		
+			function Snake() {
+                this.x = 280;
+                this.y = 30;	
+                this.dir = 'L';
+				
+            }
+
+			
+
+            Snake.prototype.changeDir = function(dir) {
+                this.dir = dir;
+            }
+
+			
+            Snake.prototype.draw = function() {
+				if ( snakeDead )
+					 {					  
+					  return false;
+					 }
+				else if( this.x < 0 || this.x +10> BoardSize1x )
+					 {
+					  return false;
+					 }
+				else if( this.y < 0 || this.y +10> BoardSize1y )
+					 {
+					  return false;
+					  }
+				//let snake tail take position of head
+                for(i=snakePart; i>0; --i)
+				{
+					document.getElementById("snake"+i).style.left = document.getElementById("snake"+ (i-1)).style.left;
+					document.getElementById("snake"+i).style.top = document.getElementById("snake"+ (i-1)).style.top;
+					document.getElementById("snake"+i).style.visibility = 'visible';
+				}						
+                document.getElementById('snake0').style.left = this.x;
+                document.getElementById('snake0').style.top = this.y;
+				
+				
+				if( !moveOne )
+				{
+					//check if snake touches itself-dead
+					for(i=snakePart; !snakeDead && i>0; --i)
+					{
+						if( 
+							((((this.x) + "px") == document.getElementById("snake"+i).style.left) &&
+							((this.y + "px") == document.getElementById("snake"+i).style.top)) 
+							
+						   )
+						snakeDead = true;
+						 
+					}
+					
+					//for eating all the foods present on the screen
+					for(i=1;i<=Goals;i++)		
+					{
+					if((this.x + "px") == document.getElementById("food"+i).style.left &&
+					   (this.y + "px") == document.getElementById("food"+i).style.top)
+						{
+							//dynamically generate snake size
+							++snakePart;
+							var imageSnake = "<img src = \"snake.png\" id=\"snake"+(snakePart)+"\" style = \"position:absolute;left:0;top:0;height:10px;Visibility:hidden\" />";
+							document.getElementById('Board').innerHTML += imageSnake;
+							
+							//to disappear food that is eaten up
+							var image_x = document.getElementById('Board');
+							image_x.removeChild(document.getElementById('food'+i));
+							Score=Score+2;
+							//to generate another goal
+							redrawFood(i);
+							
+							
+						}
+					}
+				}			
+				moveOne = false;
+				return true;
+            }
+
+            Snake.prototype.move = function() {
+                switch (this.dir) {
+                    case 'L': // Left
+                        this.x -= 10;
+                        break;
+                    case 'U': // Up
+                        this.y -= 10;
+                        break;
+                    case 'R': // Right
+                        this.x += 10;
+                        break;
+                    case 'D': // Down
+                        this.y += 10;
+                        break;
+                }
+
+				
+               retval= this.draw();
+			   if(!retval){
+			   document.getElementById('out').innerHTML="OUT";
+			   document.getElementById('outscore').innerHTML="<br>Your Score is "+Score+" ";
+					  if(answer)
+					  {
+					  clearInterval(timer);
+					  window.location = "snake2.html";
+					  }
+				 }
+				  drawFood();
+				  
+            }
+
+            var mrSnake = new Snake();
+
+            window.addEventListener('keydown', function(event) {
+                switch (event.keyCode) {
+                    case 37: // Left
+					    if(mrSnake.dir!='R')
+						{
+                        mrSnake.changeDir('L');
+						}
+						break;
+                    case 38: // Up
+						if(mrSnake.dir!='D')
+						{
+                        mrSnake.changeDir('U');
+						}
+                        break;
+                    case 39: // Right
+                        if(mrSnake.dir!='L')
+						{
+						mrSnake.changeDir('R');
+						}
+                        break;
+                    case 40: // Down
+                        if(mrSnake.dir!='U')
+						{
+						mrSnake.changeDir('D');
+						}
+                        break;
+                }
+				
+            }, false);
+			
+			
+			
+
+            timer=setInterval('mrSnake.move()', SnakePace);
+		
+</script>
+
+  
+</html>
